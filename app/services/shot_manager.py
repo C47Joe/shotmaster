@@ -42,12 +42,14 @@ class ShotManager:
         self.project_path = Path(project_path)
         self.shots_dir = self.project_path / 'shots'
         self.wip_dir = self.shots_dir / 'wip'
-        self.latest_images_dir = self.shots_dir / 'latest_images'
+        self.latest_first_frames_dir = self.shots_dir / 'latest_first_frames'
+        self.latest_last_frames_dir = self.shots_dir / 'latest_last_frames'
         self.latest_videos_dir = self.shots_dir / 'latest_videos'
         self.legacy_dir = self.project_path / '_legacy'
 
         self.wip_dir.mkdir(parents=True, exist_ok=True)
-        self.latest_images_dir.mkdir(parents=True, exist_ok=True)
+        self.latest_first_frames_dir.mkdir(parents=True, exist_ok=True)
+        self.latest_last_frames_dir.mkdir(parents=True, exist_ok=True)
         self.latest_videos_dir.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
@@ -88,9 +90,15 @@ class ShotManager:
                     f.rename(lipsync_dir / f.name.replace(old_name, new_name, 1))
 
         for ext in ALLOWED_IMAGE_EXTENSIONS:
-            src = self.latest_images_dir / f"{old_name}{ext}"
+            # Rename first frame images
+            src = self.latest_first_frames_dir / f"{old_name}{ext}"
             if src.exists():
-                src.rename(self.latest_images_dir / f"{new_name}{ext}")
+                src.rename(self.latest_first_frames_dir / f"{new_name}{ext}")
+            
+            # Rename last frame images
+            src = self.latest_last_frames_dir / f"{old_name}{ext}"
+            if src.exists():
+                src.rename(self.latest_last_frames_dir / f"{new_name}{ext}")
 
         for ext in ALLOWED_VIDEO_EXTENSIONS:
             src = self.latest_videos_dir / f"{old_name}{ext}"
@@ -110,11 +118,13 @@ class ShotManager:
         shot_dir.mkdir(parents=True, exist_ok=True)
 
         # Create subfolders
-        (shot_dir / 'images').mkdir(exist_ok=True)
+        (shot_dir / 'first_frames').mkdir(exist_ok=True)
+        (shot_dir / 'last_frames').mkdir(exist_ok=True)
         (shot_dir / 'videos').mkdir(exist_ok=True)
         (shot_dir / 'lipsync').mkdir(exist_ok=True)
 
-        self.latest_images_dir.mkdir(parents=True, exist_ok=True)
+        self.latest_first_frames_dir.mkdir(parents=True, exist_ok=True)
+        self.latest_last_frames_dir.mkdir(parents=True, exist_ok=True)
         self.latest_videos_dir.mkdir(parents=True, exist_ok=True)
 
         return shot_dir
@@ -249,15 +259,25 @@ class ShotManager:
                 pass
 
 
-        # Latest image
-        latest_image, image_version = self._get_latest_asset(
-            self.latest_images_dir, shot_dir / 'images',
+        # Latest first frame image
+        latest_first_frame, first_frame_version = self._get_latest_asset(
+            self.latest_first_frames_dir, shot_dir / 'first_frames',
             shot_name, ALLOWED_IMAGE_EXTENSIONS
         )
-        latest_image = self._normalize_path(latest_image)
-        image_prompt = ''
-        if image_version > 0:
-            image_prompt = self.load_prompt(shot_name, 'image', image_version)
+        latest_first_frame = self._normalize_path(latest_first_frame)
+        first_frame_prompt = ''
+        if first_frame_version > 0:
+            first_frame_prompt = self.load_prompt(shot_name, 'first_frame', first_frame_version)
+        
+        # Latest last frame image
+        latest_last_frame, last_frame_version = self._get_latest_asset(
+            self.latest_last_frames_dir, shot_dir / 'last_frames',
+            shot_name, ALLOWED_IMAGE_EXTENSIONS
+        )
+        latest_last_frame = self._normalize_path(latest_last_frame)
+        last_frame_prompt = ''
+        if last_frame_version > 0:
+            last_frame_prompt = self.load_prompt(shot_name, 'last_frame', last_frame_version)
 
         # Latest video
         latest_video, video_version = self._get_latest_asset(
@@ -289,23 +309,31 @@ class ShotManager:
             }
 
         # Thumbnails
-        image_thumb = self.get_thumbnail_path(Path(latest_image), shot_name) if latest_image else None
+        first_frame_thumb = self.get_thumbnail_path(Path(latest_first_frame), shot_name) if latest_first_frame else None
+        last_frame_thumb = self.get_thumbnail_path(Path(latest_last_frame), shot_name) if latest_last_frame else None
         video_thumb = self.get_video_thumbnail_path(Path(latest_video), shot_name) if latest_video else None
 
         for part_name, info in lipsync.items():
             info['thumbnail'] = self.get_video_thumbnail_path(Path(info['file']), f"{shot_name}_{part_name}") if info['file'] else None
 
-        logger.debug("%s -> Image thumbnail: %s", shot_name, image_thumb)
+        logger.debug("%s -> First frame thumbnail: %s", shot_name, first_frame_thumb)
+        logger.debug("%s -> Last frame thumbnail: %s", shot_name, last_frame_thumb)
         logger.debug("%s -> Video thumbnail: %s", shot_name, video_thumb)
 
         return {
             'name': shot_name,
             'notes': notes,
-            'image': {
-                'file': latest_image,
-                'version': image_version,
-                'thumbnail': image_thumb,
-                'prompt': image_prompt,
+            'first_frame': {
+                'file': latest_first_frame,
+                'version': first_frame_version,
+                'thumbnail': first_frame_thumb,
+                'prompt': first_frame_prompt,
+            },
+            'last_frame': {
+                'file': latest_last_frame,
+                'version': last_frame_version,
+                'thumbnail': last_frame_thumb,
+                'prompt': last_frame_prompt,
             },
             'video': {
                 'file': latest_video,

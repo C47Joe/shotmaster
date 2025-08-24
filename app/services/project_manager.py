@@ -56,7 +56,8 @@ class ProjectManager:
         shots_dir = project_dir / 'shots'
         shots_dir.mkdir(exist_ok=True)
         (shots_dir / 'wip').mkdir(parents=True, exist_ok=True)
-        (shots_dir / 'latest_images').mkdir(exist_ok=True)
+        (shots_dir / 'latest_first_frames').mkdir(exist_ok=True)
+        (shots_dir / 'latest_last_frames').mkdir(exist_ok=True)
         (shots_dir / 'latest_videos').mkdir(exist_ok=True)
         (project_dir / '_legacy').mkdir(exist_ok=True)
 

@@ -283,7 +283,7 @@
         .grid-header {
             background: #2a2a2a;
             display: grid;
-            grid-template-columns: 110px 160px 160px 1fr; /* Adjust widths here */
+            grid-template-columns: 110px 160px 160px 160px 1fr; /* Shot Name, First Frame, Last Frame, Video, Notes */
             align-items: start; /* Align content to top/left */
             border-bottom: 1px solid #404040;
         }
@@ -299,7 +299,7 @@
 
         .shot-row {
             display: grid;
-            grid-template-columns: 110px 160px 160px 1fr; /* Adjust widths here */
+            grid-template-columns: 110px 160px 160px 160px 1fr; /* Shot Name, First Frame, Last Frame, Video, Notes */
             align-items: start; /* Align content to top/left */
             border-bottom: 1px solid #404040;
             transition: background 0.2s;

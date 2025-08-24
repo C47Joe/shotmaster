@@ -22,11 +22,13 @@ class FileHandler:
         self.project_path = Path(project_path)
         self.shots_dir = self.project_path / 'shots'
         self.wip_dir = self.shots_dir / 'wip'
-        self.latest_images_dir = self.shots_dir / 'latest_images'
+        self.latest_first_frames_dir = self.shots_dir / 'latest_first_frames'
+        self.latest_last_frames_dir = self.shots_dir / 'latest_last_frames'
         self.latest_videos_dir = self.shots_dir / 'latest_videos'
 
         self.wip_dir.mkdir(parents=True, exist_ok=True)
-        self.latest_images_dir.mkdir(parents=True, exist_ok=True)
+        self.latest_first_frames_dir.mkdir(parents=True, exist_ok=True)
+        self.latest_last_frames_dir.mkdir(parents=True, exist_ok=True)
         self.latest_videos_dir.mkdir(parents=True, exist_ok=True)
 
     def clear_thumbnail_cache(self):
@@ -43,11 +45,14 @@ class FileHandler:
                     logger.warning("Could not delete thumbnail %s: %s", thumb, e)
 
     def save_file(self, file, shot_name, file_type):
-        """Save uploaded file with proper versioning"""
+        """Save uploaded file with proper versioning
+        
+        file_type can be: 'first_frame', 'last_frame', 'video', 'driver', 'target', 'result'
+        """
         shot_dir = self.wip_dir / shot_name
         file_ext = Path(file.filename).suffix.lower()
 
-        if file_type == 'image' and file_ext not in ALLOWED_IMAGE_EXTENSIONS:
+        if file_type in {'first_frame', 'last_frame'} and file_ext not in ALLOWED_IMAGE_EXTENSIONS:
             raise ValueError(f"Invalid image format. Allowed: {', '.join(ALLOWED_IMAGE_EXTENSIONS)}")
         elif file_type == 'video' and file_ext not in ALLOWED_VIDEO_EXTENSIONS:
             raise ValueError(f"Invalid video format. Allowed: {', '.join(ALLOWED_VIDEO_EXTENSIONS)}")
@@ -57,15 +62,23 @@ class FileHandler:
         if not shot_dir.exists():
             get_shot_manager(self.project_path).create_shot_structure(shot_name)
 
-        if file_type in {'image', 'video'}:
-            wip_dir = shot_dir / ('images' if file_type == 'image' else 'videos')
+        if file_type in {'first_frame', 'last_frame', 'video'}:
+            if file_type == 'first_frame':
+                wip_dir = shot_dir / 'first_frames'
+                final_dir = self.latest_first_frames_dir
+            elif file_type == 'last_frame':
+                wip_dir = shot_dir / 'last_frames'
+                final_dir = self.latest_last_frames_dir
+            else:  # video
+                wip_dir = shot_dir / 'videos'
+                final_dir = self.latest_videos_dir
+            
             version = self.get_next_version(wip_dir, shot_name, file_ext)
 
             wip_filename = f'{shot_name}_v{version:03d}{file_ext}'
             wip_path = wip_dir / wip_filename
             file.save(str(wip_path))
 
-            final_dir = self.latest_images_dir if file_type == 'image' else self.latest_videos_dir
             final_filename = f'{shot_name}{file_ext}'
             final_path = final_dir / final_filename
 

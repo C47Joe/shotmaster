@@ -338,7 +338,8 @@
             
             row.innerHTML = `
                 <div class="shot-name" onclick="editShotName(this, '${shot.name}')">${shot.name}</div>
-                ${createDropZone(shot, 'image')}
+                ${createDropZone(shot, 'first_frame')}
+                ${createDropZone(shot, 'last_frame')}
                 ${createDropZone(shot, 'video')}
                 ${'' /* createLipsyncZone(shot) */}
                 <div class="notes-cell">
@@ -390,7 +391,7 @@
                          ondrop="handleDrop(event, '${shot.name}', '${type}')"
                          ondragleave="handleDragLeave(event)">
                         <div class="drop-placeholder">
-                            <div class="text">Add ${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                            <div class="text">Add ${type === 'first_frame' ? 'First Frame' : type === 'last_frame' ? 'Last Frame' : type.charAt(0).toUpperCase() + type.slice(1)}</div>
                         </div>
                     </div>
                 `;
@@ -630,7 +631,7 @@
             const imageExts = ['jpg', 'jpeg', 'png', 'webp'];
             const videoExts = ['mp4', 'mov'];
 
-            if (imageExts.includes(ext)) return 'image';
+            if (imageExts.includes(ext)) return 'first_frame'; // Default images to first_frame
             if (videoExts.includes(ext)) return 'video';
             return null;
         }
@@ -638,7 +639,7 @@
         function openFileDialog(shotName, fileType) {
             const input = document.createElement('input');
             input.type = 'file';
-            if (fileType === 'image') {
+            if (fileType === 'first_frame' || fileType === 'last_frame') {
                 input.accept = 'image/*';
             } else if (fileType === 'video') {
                 input.accept = 'video/*';
