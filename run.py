@@ -10,8 +10,8 @@ from app import create_app
 
 
 def load_server_config():
-    """Load server host and port from shotbuddy.cfg if it exists."""
-    cfg_path = Path(__file__).with_name("shotbuddy.cfg")
+    """Load server host and port from shotmaster.cfg if it exists."""
+    cfg_path = Path(__file__).with_name("shotmaster.cfg")
     host = None
     port = None
     if cfg_path.exists():
@@ -27,9 +27,9 @@ app = create_app()
 
 if __name__ == "__main__":
     cfg_host, cfg_port = load_server_config()
-    host = os.environ.get("SHOTBUDDY_HOST", cfg_host or "127.0.0.1")
-    port = int(os.environ.get("SHOTBUDDY_PORT", cfg_port or 5001))
-    debug = os.environ.get("SHOTBUDDY_DEBUG", "0").lower() in {"1", "true", "yes"}
+    host = os.environ.get("SHOTMASTER_HOST", cfg_host or "127.0.0.1")
+    port = int(os.environ.get("SHOTMASTER_PORT", cfg_port or 5001))
+    debug = os.environ.get("SHOTMASTER_DEBUG", "0").lower() in {"1", "true", "yes"}
 
     def _open_browser_when_ready(url):
         while True:

@@ -192,7 +192,7 @@ def browse_directory():
                         directories.append({
                             "name": item.name,
                             "path": str(item.resolve()),
-                            "is_shotbuddy_project": (item / "shots").exists()
+                            "is_shotmaster_project": (item / "shots").exists()
                         })
                     except (PermissionError, OSError):
                         # Skip directories we can't read

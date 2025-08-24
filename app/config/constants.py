@@ -3,7 +3,7 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 
-UPLOAD_FOLDER = os.environ.get('SHOTBUDDY_UPLOAD_FOLDER', 'uploads')
+UPLOAD_FOLDER = os.environ.get('SHOTMASTER_UPLOAD_FOLDER', 'uploads')
 PROJECTS_FILE = 'projects.json'
 ALLOWED_IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
 ALLOWED_VIDEO_EXTENSIONS = {'.mp4', '.mov'}

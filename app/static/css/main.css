@@ -120,13 +120,13 @@
             font-style: italic;
         }
 
-        .directory-item.shotbuddy-project {
+        .directory-item.shotmaster-project {
             background: rgba(0, 200, 81, 0.1);
             border-left: 3px solid #00c851;
         }
 
-        .directory-item.shotbuddy-project::after {
-            content: "(ShotBuddy Project)";
+        .directory-item.shotmaster-project::after {
+            content: "(ShotMaster Project)";
             color: #00c851;
             font-size: 12px;
             margin-left: auto;

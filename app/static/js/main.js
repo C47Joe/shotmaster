@@ -53,7 +53,7 @@
 
             // Add directories
             data.directories.forEach(dir => {
-                const item = createDirectoryItem(dir.name, dir.path, false, dir.is_shotbuddy_project);
+                const item = createDirectoryItem(dir.name, dir.path, false, dir.is_shotmaster_project);
                 listElement.appendChild(item);
             });
 
@@ -67,15 +67,15 @@
             }
         }
 
-        function createDirectoryItem(name, path, isParent, isShotbuddyProject) {
+        function createDirectoryItem(name, path, isParent, isShotmasterProject) {
             const item = document.createElement('div');
             item.className = 'directory-item';
             
             if (isParent) {
                 item.classList.add('parent-dir');
             }
-            if (isShotbuddyProject) {
-                item.classList.add('shotbuddy-project');
+            if (isShotmasterProject) {
+                item.classList.add('shotmaster-project');
             }
 
             const icon = document.createElement('div');

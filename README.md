@@ -1,4 +1,4 @@
-# Shotbuddy
+# ShotMaster
 An application for managing AI-driven image-to-video filmmaking workflows, supporting structured organization, versioning, and annotation of generated stills and videos.
 
 ## Project folder layout
@@ -29,10 +29,10 @@ only prerequisite is that `git` is already installed on your machine.
 2. **Clone the repository**
 
    ```bash
-   git clone https://github.com/albozes/shotbuddy.git
+   git clone https://github.com/C47Joe/shotmaster.git
    ```
    ```bash
-   cd shotbuddy
+   cd shotmaster
    ```
 3. **Create and activate a virtual environment**
 
@@ -67,11 +67,11 @@ only prerequisite is that `git` is already installed on your machine.
    ```
 7. **Open your browser**
 
-   By default, Shotbuddy will be available at http://127.0.0.1:5001/
+   By default, ShotMaster will be available at http://127.0.0.1:5001/
 
 ## Configuration
 
-Server settings can be defined in the `shotbuddy.cfg` file located in the
+Server settings can be defined in the `shotmaster.cfg` file located in the
 repository root. The file uses INI syntax and contains a `[server]` section with
 `host` and `port` keys:
 
@@ -81,19 +81,19 @@ host = 0.0.0.0
 port = 5001
 ```
 
-Values specified via environment variables override those in `shotbuddy.cfg`.
+Values specified via environment variables override those in `shotmaster.cfg`.
 Available variables are:
 
-- `SHOTBUDDY_UPLOAD_FOLDER` – directory used for temporary uploads (default:
+- `SHOTMASTER_UPLOAD_FOLDER` – directory used for temporary uploads (default:
   `uploads`).
-- `SHOTBUDDY_HOST` – address the Flask server binds to (default: `127.0.0.1`).
-- `SHOTBUDDY_PORT` – port number for the development server (default: `5001`).
-- `SHOTBUDDY_DEBUG` – set to `1` to enable Flask debug mode.
+- `SHOTMASTER_HOST` – address the Flask server binds to (default: `127.0.0.1`).
+- `SHOTMASTER_PORT` – port number for the development server (default: `5001`).
+- `SHOTMASTER_DEBUG` – set to `1` to enable Flask debug mode.
 
 ## Functionality
-Shotbuddy has a straightforward interface, similar to existing shotlist applications, but optimized for AI filmmakers.
+ShotMaster has a straightforward interface, similar to existing shotlist applications, but optimized for AI filmmakers.
 
-![Shotbuddy_00](https://github.com/user-attachments/assets/d5b00bff-a698-4f55-a3ea-d16192e9e8df)
+![ShotMaster_00](https://github.com/user-attachments/assets/d5b00bff-a698-4f55-a3ea-d16192e9e8df)
 
 Create new shots and iterate versions with simple drag and drop. Generated images and videos are automatically copied into a clean folder structure and renamed to the correct shot.
 
