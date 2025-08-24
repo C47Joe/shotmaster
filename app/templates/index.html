@@ -10,17 +10,23 @@
 <body>
     <div class="menu-bar">
         <div class="setup-panel">
-            <input
-                id="manual-path-input"
-                class="path-input"
-                type="text"
-                placeholder="Enter full path to project folder"
-            />
+            <div class="path-selector-container">
+                <input
+                    id="manual-path-input"
+                    class="path-input"
+                    type="text"
+                    placeholder="Select folder using Browse button"
+                    readonly
+                />
+                <button class="dark-button" onclick="openFileBrowser()">
+                    Browse...
+                </button>
+            </div>
             <button class="dark-button" onclick="loadProjectFromManualPath()">
-                Load Project from Path
+                Load Project
             </button>
             <button class="dark-button" onclick="openCreateProjectModal()">
-                Create New Project at Path
+                Create New Project
             </button>
         </div>
     </div>
@@ -72,6 +78,26 @@
             <div class="modal-buttons">
                 <button class="dark-button" onclick="confirmCreateProject()">Create</button>
                 <button class="dark-button" onclick="closeCreateProjectModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Browser Modal -->
+    <div id="file-browser-modal" class="modal">
+        <div class="modal-content file-browser-content">
+            <div class="file-browser-header">
+                <h3>Select Folder</h3>
+                <button class="close-modal" onclick="closeFileBrowser()">&times;</button>
+            </div>
+            <div class="file-browser-path">
+                <span id="current-browser-path">Loading...</span>
+            </div>
+            <div class="file-browser-list" id="directory-list">
+                <!-- Directory items will be populated here -->
+            </div>
+            <div class="file-browser-footer">
+                <button class="dark-button" onclick="selectCurrentFolder()">Select This Folder</button>
+                <button class="dark-button" onclick="closeFileBrowser()">Cancel</button>
             </div>
         </div>
     </div>

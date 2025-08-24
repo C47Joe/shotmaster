@@ -42,7 +42,7 @@
         function openCreateProjectModal() {
             const basePath = document.getElementById('manual-path-input').value.trim();
             if (!basePath) {
-                showNotification("Please enter a full path to a project folder.", "error");
+                showNotification("Please select a folder first.", "error");
                 return;
             }
             document.getElementById('new-project-name').value = '';
@@ -59,7 +59,7 @@
             const projectName = document.getElementById('new-project-name').value.trim();
 
             if (!basePath) {
-                showNotification("Please enter a full path to a project folder.", "error");
+                showNotification("Please select a folder first.", "error");
                 return;
             }
             if (!projectName) {

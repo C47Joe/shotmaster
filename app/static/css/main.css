@@ -50,6 +50,124 @@
             background: #505050;
         }
 
+        /* Path Selector Container */
+        .path-selector-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* File Browser Modal Styles */
+        .file-browser-content {
+            width: 600px;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-browser-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .file-browser-header h3 {
+            margin: 0;
+        }
+
+        .file-browser-path {
+            background: #2a2a2a;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .file-browser-list {
+            flex: 1;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #333;
+            border-radius: 4px;
+        }
+
+        .directory-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .directory-item:hover {
+            background: #2a2a2a;
+        }
+
+        .directory-item:last-child {
+            border-bottom: none;
+        }
+
+        .directory-item.parent-dir {
+            color: #888;
+            font-style: italic;
+        }
+
+        .directory-item.shotbuddy-project {
+            background: rgba(0, 200, 81, 0.1);
+            border-left: 3px solid #00c851;
+        }
+
+        .directory-item.shotbuddy-project::after {
+            content: "(ShotBuddy Project)";
+            color: #00c851;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        .directory-icon {
+            width: 16px;
+            height: 16px;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23888"><path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/></svg>');
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .file-browser-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            color: #e5e5e5;
+        }
+        }
+
         .icon-button {
             padding: 8px 10px;
             display: flex;

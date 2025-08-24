@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, render_template, current_app
 from pathlib import Path
 from datetime import datetime
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -156,4 +157,62 @@ def create_project():
 
         return jsonify({"success": True, "data": project_info})
     except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@project_bp.route("/api/browse", methods=["GET"])
+def browse_directory():
+    """Browse directories for path selection"""
+    try:
+        path_param = request.args.get("path", "")
+        
+        # Default to user's home directory if no path provided
+        if not path_param:
+            path_param = str(Path.home())
+        
+        from app.utils import sanitize_path
+        current_path = sanitize_path(path_param).resolve()
+        
+        # Security check - ensure we can read the directory
+        if not current_path.exists() or not current_path.is_dir():
+            # Fall back to parent directory or home
+            if current_path.parent.exists():
+                current_path = current_path.parent
+            else:
+                current_path = Path.home()
+        
+        # Get directory contents
+        directories = []
+        try:
+            for item in sorted(current_path.iterdir()):
+                if item.is_dir() and not item.name.startswith('.'):
+                    try:
+                        # Test if we can actually access this directory
+                        list(item.iterdir())
+                        directories.append({
+                            "name": item.name,
+                            "path": str(item.resolve()),
+                            "is_shotbuddy_project": (item / "shots").exists()
+                        })
+                    except (PermissionError, OSError):
+                        # Skip directories we can't read
+                        continue
+        except PermissionError:
+            return jsonify({"success": False, "error": "Permission denied"}), 403
+        
+        # Get parent directory info
+        parent_path = None
+        if current_path != current_path.parent:
+            parent_path = str(current_path.parent.resolve())
+        
+        return jsonify({
+            "success": True,
+            "data": {
+                "current_path": str(current_path),
+                "parent_path": parent_path,
+                "directories": directories
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error browsing directory: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
