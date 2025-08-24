@@ -30,6 +30,9 @@ class FileHandler:
         self.latest_first_frames_dir.mkdir(parents=True, exist_ok=True)
         self.latest_last_frames_dir.mkdir(parents=True, exist_ok=True)
         self.latest_videos_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Legacy compatibility - reference to old directories
+        self.legacy_latest_images_dir = self.shots_dir / 'latest_images'
 
     def clear_thumbnail_cache(self):
         """Remove all files from the thumbnail cache."""

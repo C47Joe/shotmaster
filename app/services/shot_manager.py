@@ -51,6 +51,9 @@ class ShotManager:
         self.latest_first_frames_dir.mkdir(parents=True, exist_ok=True)
         self.latest_last_frames_dir.mkdir(parents=True, exist_ok=True)
         self.latest_videos_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Legacy compatibility - also store reference to old directories
+        self.legacy_latest_images_dir = self.shots_dir / 'latest_images'
 
     @staticmethod
     def _normalize_path(path):
@@ -259,15 +262,18 @@ class ShotManager:
                 pass
 
 
-        # Latest first frame image
-        latest_first_frame, first_frame_version = self._get_latest_asset(
+        # Latest first frame image (with backward compatibility)
+        latest_first_frame, first_frame_version = self._get_latest_asset_with_legacy(
             self.latest_first_frames_dir, shot_dir / 'first_frames',
-            shot_name, ALLOWED_IMAGE_EXTENSIONS
+            shot_name, ALLOWED_IMAGE_EXTENSIONS, 'first_frame'
         )
         latest_first_frame = self._normalize_path(latest_first_frame)
         first_frame_prompt = ''
         if first_frame_version > 0:
+            # Try to load first_frame prompt, fallback to legacy 'image' prompt if not found
             first_frame_prompt = self.load_prompt(shot_name, 'first_frame', first_frame_version)
+            if not first_frame_prompt:
+                first_frame_prompt = self.load_prompt(shot_name, 'image', first_frame_version)
         
         # Latest last frame image
         latest_last_frame, last_frame_version = self._get_latest_asset(
@@ -375,6 +381,44 @@ class ShotManager:
 
         return latest_final, version
 
+    def _get_latest_asset_with_legacy(self, final_dir, wip_dir, shot_name, extensions, asset_type):
+        """Helper for finding latest asset with backward compatibility for legacy files."""
+        # First try the new system
+        latest_final, version = self._get_latest_asset(final_dir, wip_dir, shot_name, extensions)
+        
+        # If no files found and this is for first_frame, check legacy locations
+        if asset_type == 'first_frame' and latest_final is None and version == 0:
+            # Check legacy latest_images directory
+            if self.legacy_latest_images_dir.exists():
+                for ext in extensions:
+                    candidate = self.legacy_latest_images_dir / f'{shot_name}{ext}'
+                    if candidate.exists():
+                        latest_final = str(candidate)
+                        version = 1  # Treat legacy files as version 1
+                        break
+            
+            # Check legacy images/ directory in wip if still no file found
+            if latest_final is None and version == 0:
+                legacy_wip_dir = self.wip_dir / shot_name / 'images'
+                if legacy_wip_dir.exists():
+                    wip_files = []
+                    for ext in extensions:
+                        wip_files.extend(legacy_wip_dir.glob(f'{shot_name}_v*{ext}'))
+                    
+                    versions = []
+                    for f in wip_files:
+                        try:
+                            version_str = f.stem.split('_v')[1]
+                            versions.append(int(version_str))
+                        except (IndexError, ValueError):
+                            continue
+                    
+                    if versions:
+                        version = max(versions)
+                        # Don't set latest_final for legacy wip files, just version
+        
+        return latest_final, version
+
     def save_shot_notes(self, shot_name, notes):
         """Save notes for a shot."""
         validate_shot_name(shot_name)
@@ -395,6 +439,12 @@ class ShotManager:
         if asset_type == 'image':
             base_dir = shot_dir / 'images'
             filename = f'{shot_name}_v{version:03d}_image_prompt.txt'
+        elif asset_type == 'first_frame':
+            base_dir = shot_dir / 'first_frames'
+            filename = f'{shot_name}_v{version:03d}_first_frame_prompt.txt'
+        elif asset_type == 'last_frame':
+            base_dir = shot_dir / 'last_frames'
+            filename = f'{shot_name}_v{version:03d}_last_frame_prompt.txt'
         elif asset_type == 'video':
             base_dir = shot_dir / 'videos'
             filename = f'{shot_name}_v{version:03d}_video_prompt.txt'
@@ -402,7 +452,7 @@ class ShotManager:
             base_dir = shot_dir / 'lipsync'
             filename = f'{shot_name}_{asset_type}_v{version:03d}_prompt.txt'
         else:
-            raise ValueError('Invalid asset type')
+            raise ValueError(f'Invalid asset type: {asset_type}')
         return base_dir / filename
 
     def load_prompt(self, shot_name, asset_type, version):
