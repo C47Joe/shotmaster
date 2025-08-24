@@ -5,6 +5,101 @@
         const NEW_SHOT_DROP_TEXT = 'Drop an asset here to create a new shot.';
         document.documentElement.style.setProperty('--new-shot-drop-text', `'${NEW_SHOT_DROP_TEXT}'`);
 
+        // File Browser Functions
+        let currentBrowserPath = '';
+
+        async function openFileBrowser() {
+            const modal = document.getElementById('file-browser-modal');
+            modal.style.display = 'flex';
+            
+            // Start from user's home directory or current path
+            const currentPath = document.getElementById('manual-path-input').value.trim();
+            await browseTo(currentPath || '');
+        }
+
+        function closeFileBrowser() {
+            document.getElementById('file-browser-modal').style.display = 'none';
+        }
+
+        async function browseTo(path) {
+            try {
+                const response = await fetch(`/api/browse?path=${encodeURIComponent(path)}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    currentBrowserPath = result.data.current_path;
+                    displayDirectoryContents(result.data);
+                } else {
+                    showNotification(result.error || 'Failed to browse directory', 'error');
+                }
+            } catch (error) {
+                console.error('Error browsing directory:', error);
+                showNotification('Error browsing directory', 'error');
+            }
+        }
+
+        function displayDirectoryContents(data) {
+            const pathElement = document.getElementById('current-browser-path');
+            const listElement = document.getElementById('directory-list');
+
+            pathElement.textContent = data.current_path;
+            listElement.innerHTML = '';
+
+            // Add parent directory option if not at root
+            if (data.parent_path) {
+                const parentItem = createDirectoryItem('..', data.parent_path, true, false);
+                listElement.appendChild(parentItem);
+            }
+
+            // Add directories
+            data.directories.forEach(dir => {
+                const item = createDirectoryItem(dir.name, dir.path, false, dir.is_shotbuddy_project);
+                listElement.appendChild(item);
+            });
+
+            if (data.directories.length === 0 && !data.parent_path) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'directory-item';
+                emptyMessage.style.fontStyle = 'italic';
+                emptyMessage.style.color = '#888';
+                emptyMessage.textContent = 'No accessible directories found';
+                listElement.appendChild(emptyMessage);
+            }
+        }
+
+        function createDirectoryItem(name, path, isParent, isShotbuddyProject) {
+            const item = document.createElement('div');
+            item.className = 'directory-item';
+            
+            if (isParent) {
+                item.classList.add('parent-dir');
+            }
+            if (isShotbuddyProject) {
+                item.classList.add('shotbuddy-project');
+            }
+
+            const icon = document.createElement('div');
+            icon.className = 'directory-icon';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = name;
+
+            item.appendChild(icon);
+            item.appendChild(nameSpan);
+
+            item.addEventListener('click', () => {
+                browseTo(path);
+            });
+
+            return item;
+        }
+
+        function selectCurrentFolder() {
+            document.getElementById('manual-path-input').value = currentBrowserPath;
+            closeFileBrowser();
+            showNotification('Folder selected: ' + currentBrowserPath);
+        }
+
         // Menu functions
 
         async function loadProjectFromManualPath() {
